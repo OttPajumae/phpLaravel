@@ -7,15 +7,17 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(): View
     {
-        //
+        $articles= Article::orderBy('created_at', 'desc')->paginate();
+        return view('articles.index', compact('articles'));
     }
 
     /**
@@ -23,7 +25,7 @@ class ArticleController extends Controller
      */
     public function create(): Response
     {
-        //
+        return \response()->view('articles.create');
     }
 
     /**
@@ -31,7 +33,11 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleRequest $request): RedirectResponse
     {
-        //
+        $article = new Article();
+        $article->title = $request->validated('title');
+        $article->body = $request->validated('body');
+        $article->save();
+        return redirect()->route('articles.index');
     }
 
     /**
@@ -47,7 +53,7 @@ class ArticleController extends Controller
      */
     public function edit(Article $article): Response
     {
-        //
+        return \response()->view('articles.edit',compact('article'));
     }
 
     /**
@@ -55,7 +61,11 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
-        //
+        $article->fill($request->validated());
+//        $article->title=$request->validated('title');
+//        $article->body=$request->validated('body');
+        $article->save();
+        return redirect()->route('articles.index');
     }
 
     /**
@@ -63,6 +73,7 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article): RedirectResponse
     {
-        //
+        $article->delete();
+        return redirect()->route('articles.index');
     }
 }
